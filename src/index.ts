@@ -1,31 +1,28 @@
 import { config } from "dotenv";
 config();
-
 import express, { Request, Response } from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import Project from "./models/Project";
+import {
+  createProjectController,
+  deleteProjectController,
+  getProjectsContoller,
+} from "./controllers/projectsControllers";
 
 const app = express();
-
-app.use(cors())
-app.use(express.json())
-
+let dbURI = process.env.MONGO_URL;
 const PORT = 8000;
 
-let dbURI = process.env.MONGO_URL;
+// Middleware config
+app.use(cors({ origin: "*" }));
+app.use(express.json());
 
-app.post("/projects", async (req: Request, res: Response) => {
-  const newProject = new Project({
-    title: "triple stamp",
-  });
-
-  const createdProject = await newProject.save();
-
-  res.json(createdProject);
-});
+// CRUD: Routes, and controller functions
+app.get("/projects", getProjectsContoller);
+app.post("/projects", createProjectController);
+app.delete("/projects/:projectId", deleteProjectController);
 
 mongoose.connect(dbURI!).then(() => {
-  console.log(`listening on port ${PORT}`);
+  console.log(`Orange mocha frappacinos... listening on port ${PORT}`);
   app.listen(PORT);
 });
